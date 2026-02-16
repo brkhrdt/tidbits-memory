@@ -5,7 +5,7 @@ description = "A memory/tidbits voting framework for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-dependencies = []
+dependencies = ["mcp>=1.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "pytest-asyncio"]

@@ -1,95 +1,105 @@
-"""MCP tool wrappers for tidbits-memory.
+"""MCP tool definitions for tidbits-memory.
 
-Each function returns a JSON-serializable dict suitable for agent consumption.
+Provides ``register_tools(mcp, store)`` to attach all tidbits tools to a
+FastMCP server instance.
 """
 
 from __future__ import annotations
 
 from typing import Any, Optional
 
+from mcp.server import FastMCP
+
 from tidbits_memory.store import MemoryStore
 
 
-def _memory_to_dict(mem: Any) -> dict[str, Any]:
-    return mem.to_dict()
+def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
+    """Register all tidbits MCP tools on *mcp* backed by *store*."""
 
-
-def tidbits_create(
-    store: MemoryStore,
-    content: str,
-    *,
-    creator: Optional[str] = None,
-    tags: Optional[list[str]] = None,
-    voter_id: Optional[str] = None,
-) -> dict[str, Any]:
-    """Create a new memory entry."""
-    mem = store.create_memory(
-        content, creator=creator, tags=tags, voter_id=voter_id
+    @mcp.tool(
+        name="tidbits_create",
+        description="Create a new memory/tidbit. Returns the created memory with its id.",
     )
-    return _memory_to_dict(mem)
+    def tidbits_create(
+        content: str,
+        creator: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        voter_id: Optional[str] = None,
+    ) -> dict[str, Any]:
+        mem = store.create_memory(
+            content, creator=creator, tags=tags, voter_id=voter_id
+        )
+        return mem.to_dict()
 
+    @mcp.tool(
+        name="tidbits_upvote",
+        description="Upvote a memory. Provide voter_id to enforce one vote per session.",
+    )
+    def tidbits_upvote(
+        memory_id: str,
+        voter_id: Optional[str] = None,
+    ) -> dict[str, Any]:
+        mem = store.upvote_memory(memory_id, voter_id=voter_id)
+        return mem.to_dict()
 
-def tidbits_upvote(
-    store: MemoryStore,
-    memory_id: str,
-    *,
-    voter_id: Optional[str] = None,
-    n: int = 1,
-) -> dict[str, Any]:
-    """Upvote a memory."""
-    mem = store.upvote_memory(memory_id, voter_id=voter_id, n=n)
-    return _memory_to_dict(mem)
+    @mcp.tool(
+        name="tidbits_downvote",
+        description="Downvote a memory. Provide voter_id to enforce one vote per session.",
+    )
+    def tidbits_downvote(
+        memory_id: str,
+        voter_id: Optional[str] = None,
+    ) -> dict[str, Any]:
+        mem = store.downvote_memory(memory_id, voter_id=voter_id)
+        return mem.to_dict()
 
+    @mcp.tool(
+        name="tidbits_unvote",
+        description="Remove a prior vote from a memory by voter_id.",
+    )
+    def tidbits_unvote(
+        memory_id: str,
+        voter_id: str,
+    ) -> dict[str, Any]:
+        mem = store.unvote_memory(memory_id, voter_id)
+        return mem.to_dict()
 
-def tidbits_downvote(
-    store: MemoryStore,
-    memory_id: str,
-    *,
-    voter_id: Optional[str] = None,
-    n: int = 1,
-) -> dict[str, Any]:
-    """Downvote a memory."""
-    mem = store.downvote_memory(memory_id, voter_id=voter_id, n=n)
-    return _memory_to_dict(mem)
+    @mcp.tool(
+        name="tidbits_list",
+        description="List all memories sorted by votes descending (most upvoted first).",
+    )
+    def tidbits_list(
+        order_by: str = "votes",
+        limit: Optional[int] = None,
+    ) -> list[dict[str, Any]]:
+        return [
+            m.to_dict()
+            for m in store.list_memories(order_by=order_by, limit=limit)
+        ]
 
+    @mcp.tool(
+        name="tidbits_get_memories",
+        description=(
+            "Get all memories in random order without vote counts. "
+            "If voter_id is not provided, a new one is generated and "
+            "included in the response for use in subsequent votes."
+        ),
+    )
+    def tidbits_get_memories(
+        voter_id: Optional[str] = None,
+    ) -> dict[str, Any]:
+        return store.get_memories(voter_id=voter_id)
 
-def tidbits_unvote(
-    store: MemoryStore,
-    memory_id: str,
-    voter_id: str,
-) -> dict[str, Any]:
-    """Remove a prior vote from a memory."""
-    mem = store.unvote_memory(memory_id, voter_id)
-    return _memory_to_dict(mem)
+    @mcp.tool(
+        name="tidbits_remove",
+        description="Remove a memory by id.",
+    )
+    def tidbits_remove(memory_id: str) -> dict[str, Any]:
+        return {"removed": store.remove_memory(memory_id), "id": memory_id}
 
-
-def tidbits_list(
-    store: MemoryStore,
-    *,
-    order_by: str = "votes",
-    limit: Optional[int] = None,
-) -> list[dict[str, Any]]:
-    """List memories sorted by votes descending."""
-    return [_memory_to_dict(m) for m in store.list_memories(order_by=order_by, limit=limit)]
-
-
-def tidbits_get_memories(
-    store: MemoryStore,
-    *,
-    voter_id: Optional[str] = None,
-) -> dict[str, Any]:
-    """Get memories in random order without vote counts."""
-    return store.get_memories(voter_id=voter_id)
-
-
-def tidbits_remove(
-    store: MemoryStore,
-    memory_id: str,
-) -> dict[str, Any]:
-    """Remove a memory entry."""
-    return {"removed": store.remove_memory(memory_id), "id": memory_id}
-
-
-def tidbits_create_voter_id() -> dict[str, str]:
-    """Generate a new voter_id for an agent session."""
-    return {"voter_id": MemoryStore.create_voter_id()}
+    @mcp.tool(
+        name="tidbits_create_voter_id",
+        description="Generate a new unique voter_id for this agent session.",
+    )
+    def tidbits_create_voter_id() -> dict[str, str]:
+        return {"voter_id": store.create_voter_id()}
