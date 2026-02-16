@@ -17,10 +17,10 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
     """Register all tidbits MCP tools on *mcp* backed by *store*."""
 
     @mcp.tool(
-        name="tidbits_create",
+        name="create_memory",
         description="Create a new memory/tidbit. Returns the created memory with its id.",
     )
-    def tidbits_create(
+    def create_memory(
         content: str,
         creator: Optional[str] = None,
         tags: Optional[list[str]] = None,
@@ -32,10 +32,10 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         return mem.to_dict()
 
     @mcp.tool(
-        name="tidbits_upvote",
+        name="upvote_memory",
         description="Upvote a memory. Provide voter_id to enforce one vote per session.",
     )
-    def tidbits_upvote(
+    def upvote_memory(
         memory_id: str,
         voter_id: Optional[str] = None,
     ) -> dict[str, Any]:
@@ -43,10 +43,10 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         return mem.to_dict()
 
     @mcp.tool(
-        name="tidbits_downvote",
+        name="downvote_memory",
         description="Downvote a memory. Provide voter_id to enforce one vote per session.",
     )
-    def tidbits_downvote(
+    def downvote_memory(
         memory_id: str,
         voter_id: Optional[str] = None,
     ) -> dict[str, Any]:
@@ -54,10 +54,10 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         return mem.to_dict()
 
     @mcp.tool(
-        name="tidbits_unvote",
+        name="unvote_memory",
         description="Remove a prior vote from a memory by voter_id.",
     )
-    def tidbits_unvote(
+    def unvote_memory(
         memory_id: str,
         voter_id: str,
     ) -> dict[str, Any]:
@@ -65,10 +65,10 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         return mem.to_dict()
 
     @mcp.tool(
-        name="tidbits_list",
+        name="list_memory",
         description="List all memories sorted by votes descending (most upvoted first).",
     )
-    def tidbits_list(
+    def list_memory(
         order_by: str = "votes",
         limit: Optional[int] = None,
     ) -> list[dict[str, Any]]:
@@ -78,28 +78,28 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         ]
 
     @mcp.tool(
-        name="tidbits_get_memories",
+        name="get_memories",
         description=(
-            "Get all memories in random order without vote counts. "
+            "Get the list of memories."
             "If voter_id is not provided, a new one is generated and "
             "included in the response for use in subsequent votes."
         ),
     )
-    def tidbits_get_memories(
+    def get_memories(
         voter_id: Optional[str] = None,
     ) -> dict[str, Any]:
         return store.get_memories(voter_id=voter_id)
 
     @mcp.tool(
-        name="tidbits_remove",
+        name="remove_memory",
         description="Remove a memory by id.",
     )
-    def tidbits_remove(memory_id: str) -> dict[str, Any]:
+    def remove_memory(memory_id: str) -> dict[str, Any]:
         return {"removed": store.remove_memory(memory_id), "id": memory_id}
 
     @mcp.tool(
-        name="tidbits_create_voter_id",
+        name="create_voter_id",
         description="Generate a new unique voter_id for this agent session.",
     )
-    def tidbits_create_voter_id() -> dict[str, str]:
+    def create_voter_id() -> dict[str, str]:
         return {"voter_id": store.create_voter_id()}

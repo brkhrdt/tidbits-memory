@@ -169,8 +169,6 @@ class MemoryStore:
             {
                 "id": m.id,
                 "content": m.content,
-                "created_at": m.created_at,
-                "creator": m.creator,
                 "tags": m.tags,
             }
             for m in memories

@@ -67,16 +67,18 @@ If no `voter_id` is provided when calling `get_memories`, one is automatically g
 ## MCP Tool Wrappers
 
 ```python
-from tidbits_memory.tools import (
-    tidbits_create,
-    tidbits_upvote,
-    tidbits_downvote,
-    tidbits_unvote,
-    tidbits_list,
-    tidbits_get_memories,
-    tidbits_remove,
-    tidbits_create_voter_id,
-)
+from mcp.server import FastMCP
+from tidbits_memory.adapters.memory import InMemoryAdapter
+from tidbits_memory.store import MemoryStore
+from tidbits_memory.tools import register_tools
+
+store = MemoryStore(InMemoryAdapter())
+mcp = FastMCP("tidbits")
+register_tools(mcp, store)
+
+# Registered tool names:
+# create_memory, upvote_memory, downvote_memory, unvote_memory,
+# list_memory, get_memories, remove_memory, create_voter_id
 ```
 
 ## Running tests
