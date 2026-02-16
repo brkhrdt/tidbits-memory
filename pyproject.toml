@@ -1,0 +1,21 @@
+[project]
+name = "tidbits-memory"
+version = "0.1.0"
+description = "A memory/tidbits voting framework for AI agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-asyncio"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tidbits_memory"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
