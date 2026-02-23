@@ -63,6 +63,18 @@ class TestSqlitePersistence:
         assert loaded is not None
         assert loaded.content == "persist me"
 
+    def test_context_manager(self, db_path: Path):
+        with SqliteAdapter(db_path) as adapter:
+            store = MemoryStore(adapter)
+            m = store.create_memory("ctx mgr")
+            assert store.get_memory(m.id) is not None
+        # After exiting, the connection is closed; re-open to verify persistence
+        with SqliteAdapter(db_path) as adapter2:
+            store2 = MemoryStore(adapter2)
+            loaded = store2.get_memory(m.id)
+            assert loaded is not None
+            assert loaded.content == "ctx mgr"
+
     def test_voters_persist(self, db_path: Path):
         s1 = MemoryStore(SqliteAdapter(db_path))
         m = s1.create_memory("voted", voter_id="v1")

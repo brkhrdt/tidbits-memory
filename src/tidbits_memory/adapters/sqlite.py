@@ -122,3 +122,9 @@ class SqliteAdapter(BaseAdapter):
 
     def close(self) -> None:
         self._conn.close()
+
+    def __enter__(self) -> SqliteAdapter:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
