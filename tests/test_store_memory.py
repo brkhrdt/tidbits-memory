@@ -39,6 +39,14 @@ class TestCreate:
         assert m.creator == "bot"
         assert m.tags == ["py"]
 
+    def test_create_empty_content_raises(self, store: MemoryStore):
+        with pytest.raises(ValueError, match="content must not be empty"):
+            store.create_memory("")
+
+    def test_create_whitespace_content_raises(self, store: MemoryStore):
+        with pytest.raises(ValueError, match="content must not be empty"):
+            store.create_memory("   ")
+
 
 # -- upvote / downvote ----------------------------------------------------
 

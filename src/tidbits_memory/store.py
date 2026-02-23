@@ -58,6 +58,8 @@ class MemoryStore:
         tags: Optional[list[str]] = None,
         voter_id: Optional[str] = None,
     ) -> Memory:
+        if not content or not content.strip():
+            raise ValueError("Memory content must not be empty")
         now = self._now_iso()
         mem = Memory(
             content=content,
