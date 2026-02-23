@@ -62,6 +62,16 @@ class TestVoting:
         with pytest.raises(MemoryNotFoundError):
             store.downvote_memory("bad-id", voter_id="v1")
 
+    def test_vote_n_zero_raises(self, store: MemoryStore):
+        m = store.create_memory("a")
+        with pytest.raises(ValueError, match="n must be >= 1"):
+            store.upvote_memory(m.id, voter_id="v1", n=0)
+
+    def test_vote_n_negative_raises(self, store: MemoryStore):
+        m = store.create_memory("a")
+        with pytest.raises(ValueError, match="n must be >= 1"):
+            store.downvote_memory(m.id, voter_id="v1", n=-1)
+
 
 # -- per-run voting --------------------------------------------------------
 

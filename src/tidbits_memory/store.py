@@ -98,6 +98,8 @@ class MemoryStore:
         voter_id: Optional[str],
         n: int,
     ) -> Memory:
+        if n < 1:
+            raise ValueError(f"n must be >= 1, got {n}")
         mem = self._get_or_raise(memory_id)
         now = self._now_iso()
 
