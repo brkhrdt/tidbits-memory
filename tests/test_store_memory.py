@@ -148,6 +148,10 @@ class TestList:
     def test_list_empty(self, store: MemoryStore):
         assert store.list_memories() == []
 
+    def test_list_invalid_order_by(self, store: MemoryStore):
+        with pytest.raises(ValueError, match="Invalid order_by"):
+            store.list_memories(order_by="invalid")
+
 
 # -- get_memories ----------------------------------------------------------
 

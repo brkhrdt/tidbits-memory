@@ -135,12 +135,18 @@ class MemoryStore:
         self._adapter.save(mem)
         return mem
 
+    _VALID_ORDER_BY = {"votes", "created_at"}
+
     def list_memories(
         self,
         *,
         order_by: str = "votes",
         limit: Optional[int] = None,
     ) -> list[Memory]:
+        if order_by not in self._VALID_ORDER_BY:
+            raise ValueError(
+                f"Invalid order_by={order_by!r}; must be one of {sorted(self._VALID_ORDER_BY)}"
+            )
         memories = self._adapter.list_all()
         if order_by == "votes":
             memories.sort(key=lambda m: m.votes, reverse=True)
