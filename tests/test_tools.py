@@ -30,6 +30,7 @@ class TestToolRegistration:
             "get_memories",
             "get_memory",
             "remove_memory",
+            "update_memory",
             "create_voter_id",
         ]
         for name in expected:
@@ -126,3 +127,13 @@ class TestToolInvocation:
         r = await mcp_server.call_tool("get_memory", {"memory_id": "no-such-id"})
         data = self._parse(r)
         assert data["found"] is False
+
+    @pytest.mark.asyncio
+    async def test_update_memory(self, mcp_server):
+        r = await mcp_server.call_tool("create_memory", {"content": "original"})
+        mem = self._parse(r)
+        r = await mcp_server.call_tool(
+            "update_memory", {"memory_id": mem["id"], "content": "updated"}
+        )
+        data = self._parse(r)
+        assert data["content"] == "updated"

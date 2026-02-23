@@ -99,6 +99,18 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         return {"removed": store.remove_memory(memory_id), "id": memory_id}
 
     @mcp.tool(
+        name="update_memory",
+        description="Update a memory's content and/or tags. Provide at least one field to update.",
+    )
+    def update_memory(
+        memory_id: str,
+        content: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+    ) -> dict[str, Any]:
+        mem = store.update_memory(memory_id, content=content, tags=tags)
+        return mem.to_dict()
+
+    @mcp.tool(
         name="get_memory",
         description="Get a single memory by its id. Returns the memory or null if not found.",
     )

@@ -258,3 +258,35 @@ class TestCreateVoterId:
     def test_returns_unique_uuids(self):
         ids = {MemoryStore.create_voter_id() for _ in range(100)}
         assert len(ids) == 100
+
+
+# -- update_memory ---------------------------------------------------------
+
+
+class TestUpdateMemory:
+    def test_update_content(self, store: MemoryStore):
+        m = store.create_memory("old content")
+        m2 = store.update_memory(m.id, content="new content")
+        assert m2.content == "new content"
+        assert store.get_memory(m.id).content == "new content"
+
+    def test_update_tags(self, store: MemoryStore):
+        m = store.create_memory("fact", tags=["python"])
+        m2 = store.update_memory(m.id, tags=["python", "tips"])
+        assert m2.tags == ["python", "tips"]
+
+    def test_update_preserves_votes(self, store: MemoryStore):
+        m = store.create_memory("fact", voter_id="v1")
+        store.upvote_memory(m.id, voter_id="v2")
+        m2 = store.update_memory(m.id, content="updated fact")
+        assert m2.votes == 2
+        assert "v1" in m2.voters
+
+    def test_update_nonexistent_raises(self, store: MemoryStore):
+        with pytest.raises(MemoryNotFoundError):
+            store.update_memory("bad-id", content="x")
+
+    def test_update_empty_content_raises(self, store: MemoryStore):
+        m = store.create_memory("fact")
+        with pytest.raises(ValueError, match="content must not be empty"):
+            store.update_memory(m.id, content="  ")

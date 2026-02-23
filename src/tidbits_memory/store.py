@@ -198,3 +198,22 @@ class MemoryStore:
 
     def get_memory(self, memory_id: str) -> Optional[Memory]:
         return self._adapter.get(memory_id)
+
+    def update_memory(
+        self,
+        memory_id: str,
+        *,
+        content: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+    ) -> Memory:
+        """Update a memory's content and/or tags."""
+        mem = self._get_or_raise(memory_id)
+        if content is not None:
+            if not content.strip():
+                raise ValueError("Memory content must not be empty")
+            mem.content = content
+        if tags is not None:
+            mem.tags = tags
+        mem.last_updated = self._now_iso()
+        self._adapter.save(mem)
+        return mem
