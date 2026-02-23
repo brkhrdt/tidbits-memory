@@ -34,21 +34,16 @@ class JsonFileAdapter(BaseAdapter):
         return data
 
     def _write(self, data: dict[str, dict]) -> None:
-        dir_fd = None
-        try:
-            fd, tmp = tempfile.mkstemp(
-                dir=str(self._path.parent), suffix=".tmp"
-            )
-            with os.fdopen(fd, "w") as fh:
-                fcntl.flock(fh, fcntl.LOCK_EX)
-                json.dump(data, fh, indent=2)
-                fh.flush()
-                os.fsync(fh.fileno())
-                fcntl.flock(fh, fcntl.LOCK_UN)
-            os.replace(tmp, str(self._path))
-        finally:
-            if dir_fd is not None:
-                os.close(dir_fd)
+        fd, tmp = tempfile.mkstemp(
+            dir=str(self._path.parent), suffix=".tmp"
+        )
+        with os.fdopen(fd, "w") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            json.dump(data, fh, indent=2)
+            fh.flush()
+            os.fsync(fh.fileno())
+            fcntl.flock(fh, fcntl.LOCK_UN)
+        os.replace(tmp, str(self._path))
 
     # -- public interface ---------------------------------------------------
 
