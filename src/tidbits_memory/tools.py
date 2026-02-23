@@ -66,15 +66,16 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
 
     @mcp.tool(
         name="list_memory",
-        description="List all memories sorted by votes descending (most upvoted first).",
+        description="List all memories sorted by votes descending (most upvoted first). Optionally filter by tags.",
     )
     def list_memory(
         order_by: str = "votes",
         limit: Optional[int] = None,
+        tags: Optional[list[str]] = None,
     ) -> list[dict[str, Any]]:
         return [
             m.to_dict()
-            for m in store.list_memories(order_by=order_by, limit=limit)
+            for m in store.list_memories(order_by=order_by, limit=limit, tags=tags)
         ]
 
     @mcp.tool(

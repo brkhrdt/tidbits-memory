@@ -146,12 +146,16 @@ class MemoryStore:
         *,
         order_by: str = "votes",
         limit: Optional[int] = None,
+        tags: Optional[list[str]] = None,
     ) -> list[Memory]:
         if order_by not in self._VALID_ORDER_BY:
             raise ValueError(
                 f"Invalid order_by={order_by!r}; must be one of {sorted(self._VALID_ORDER_BY)}"
             )
         memories = self._adapter.list_all()
+        if tags:
+            tag_set = set(tags)
+            memories = [m for m in memories if tag_set & set(m.tags)]
         if order_by == "votes":
             memories.sort(key=lambda m: m.votes, reverse=True)
         elif order_by == "created_at":

@@ -170,6 +170,26 @@ class TestList:
         with pytest.raises(ValueError, match="Invalid order_by"):
             store.list_memories(order_by="invalid")
 
+    def test_list_filter_by_tags(self, store: MemoryStore):
+        store.create_memory("py fact", tags=["python"])
+        store.create_memory("js fact", tags=["javascript"])
+        store.create_memory("both", tags=["python", "javascript"])
+
+        result = store.list_memories(tags=["python"])
+        assert len(result) == 2
+        contents = {m.content for m in result}
+        assert contents == {"py fact", "both"}
+
+    def test_list_filter_by_tags_no_match(self, store: MemoryStore):
+        store.create_memory("py fact", tags=["python"])
+        result = store.list_memories(tags=["rust"])
+        assert result == []
+
+    def test_list_filter_by_tags_none(self, store: MemoryStore):
+        store.create_memory("a")
+        store.create_memory("b")
+        assert len(store.list_memories(tags=None)) == 2
+
 
 # -- get_memories ----------------------------------------------------------
 
