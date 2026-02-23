@@ -28,6 +28,7 @@ class TestToolRegistration:
             "unvote_memory",
             "list_memory",
             "get_memories",
+            "get_memory",
             "remove_memory",
             "create_voter_id",
         ]
@@ -110,3 +111,18 @@ class TestToolInvocation:
         r = await mcp_server.call_tool("create_voter_id", {})
         data = self._parse(r)
         assert "voter_id" in data
+
+    @pytest.mark.asyncio
+    async def test_get_memory(self, mcp_server):
+        r = await mcp_server.call_tool("create_memory", {"content": "find me"})
+        mem = self._parse(r)
+        r = await mcp_server.call_tool("get_memory", {"memory_id": mem["id"]})
+        data = self._parse(r)
+        assert data["found"] is True
+        assert data["content"] == "find me"
+
+    @pytest.mark.asyncio
+    async def test_get_memory_not_found(self, mcp_server):
+        r = await mcp_server.call_tool("get_memory", {"memory_id": "no-such-id"})
+        data = self._parse(r)
+        assert data["found"] is False

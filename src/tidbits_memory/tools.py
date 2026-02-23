@@ -99,6 +99,18 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
         return {"removed": store.remove_memory(memory_id), "id": memory_id}
 
     @mcp.tool(
+        name="get_memory",
+        description="Get a single memory by its id. Returns the memory or null if not found.",
+    )
+    def get_memory(memory_id: str) -> dict[str, Any]:
+        mem = store.get_memory(memory_id)
+        if mem is None:
+            return {"found": False, "id": memory_id}
+        result = mem.to_dict()
+        result["found"] = True
+        return result
+
+    @mcp.tool(
         name="create_voter_id",
         description="Generate a new unique voter_id for this agent session.",
     )
