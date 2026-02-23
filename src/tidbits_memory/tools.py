@@ -80,7 +80,7 @@ def register_tools(mcp: FastMCP, store: MemoryStore) -> None:
     @mcp.tool(
         name="get_memories",
         description=(
-            "Get the list of memories."
+            "Get the list of memories. "
             "If voter_id is not provided, a new one is generated and "
             "included in the response for use in subsequent votes."
         ),
